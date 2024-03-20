@@ -1,17 +1,26 @@
 from flask import Flask, render_template, request
 import numpy as np
-import joblib
+# import joblib
+import pickle
 
 app = Flask(__name__)
 
-model = joblib.load('iris_model.pkl')
-le = joblib.load('label_encoder.pkl')
 
 def predict_output(inputData):
     # import numpy as np
     # import joblib
     # le = joblib.load('label_encoder.pkl')
     # model = joblib.load('iris_model.pkl')
+    model = None
+    le = None
+    
+    if model == None:
+        with open('./iris_model.pkl', 'rb') as model_file:
+            model = pickle.load(model_file)
+    if le == None:
+        with open('./label_encoder.pkl', 'rb') as le_file:
+            le = pickle.load(le_file)
+    
     inputData = np.array(inputData).reshape(1, -1)
     output = model.predict(inputData)
     class_name = le.inverse_transform(output)
@@ -34,4 +43,12 @@ def index():
     return render_template('index.html', prediction=prediction)
 
 if __name__ == '__main__':
+    
+    with open('./iris_model.pkl', 'rb') as model_file:
+        model = pickle.load(model_file)
+        # print("Model loaded",model)
+        
+    with open('./label_encoder.pkl', 'rb') as le_file:
+        le = pickle.load(le_file)
+    
     app.run()
